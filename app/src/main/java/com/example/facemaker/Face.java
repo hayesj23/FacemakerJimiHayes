@@ -1,5 +1,7 @@
 /**
  * @author Jimi Hayes
+ *
+ * models the face and draws the face on the screen. Is the surfaceView in the app
  */
 
 package com.example.facemaker;
@@ -21,34 +23,42 @@ import androidx.annotation.RequiresApi;
 
 import java.text.AttributedCharacterIterator;
 
-public class Face extends SurfaceView implements Spinner.OnItemSelectedListener, RadioGroup.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener {
-    int skinColor;
-    int eyeColor;
-    int hairColor;
-    int hairStyle;
-    int activeButton;//0=hair, 1=eyes, 2=skin
+public class Face extends SurfaceView{
+    private int skinColor;
+    private int eyeColor;
+    private int hairColor;
+    private int hairStyle;
+    private int activeButton;//0=hair, 1=eyes, 2=skin
 
-    Paint headPaint = new Paint();
-    Paint eyePaint = new Paint();
-    Paint hairPaint = new Paint();
-    Paint mouthPaint = new Paint();
+    private Paint headPaint = new Paint();
+    private Paint eyePaint = new Paint();
+    private Paint hairPaint = new Paint();
+    private Paint whitePaint = new Paint();
+    private Paint redPaint = new Paint();
 
     //constructor
-    Face(Context context, AttributeSet attrs) {
+    public Face(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setWillNotDraw(false);
         Randomize();
         headPaint.setColor(skinColor);
         eyePaint.setColor(eyeColor);
         hairPaint.setColor(hairColor);
-        mouthPaint.setColor(Color.RED);
-        activeButton=0;
+        whitePaint.setColor(Color.WHITE);
+        activeButton=-1;
+        setBackgroundColor(Color.WHITE);
     }
+    /**External Citation
+     * Date:  6 October 2020
+     * Problem:  had android error at run time due to forgotten public
+     * Resource: Dr. Nuxoll
+     * Solution: included public.*/
     //instantiates variables to random values
     void Randomize(){
         skinColor = android.graphics.Color.argb(255, (int)(256*(Math.random())),(int)(256*(Math.random())), (int)(256*(Math.random())));
         eyeColor  = android.graphics.Color.argb(255, (int)(256*(Math.random())),(int)(256*(Math.random())), (int)(256*(Math.random())));
         hairColor  = android.graphics.Color.argb(255, (int)(256*(Math.random())),(int)(256*(Math.random())), (int)(256*(Math.random())));
-        hairStyle = (int)(4*(Math.random()));
+        hairStyle = (int)(3*(Math.random()));
     }
 
     /**External Citation
@@ -59,90 +69,83 @@ public class Face extends SurfaceView implements Spinner.OnItemSelectedListener,
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onDraw(Canvas canvas){
-    canvas.drawOval(100.0f, 100.0f, 600.0f, 800.0f, headPaint);
+        float width = canvas.getWidth();
+        float height = canvas.getHeight();
+        headPaint.setColor(skinColor);
+        eyePaint.setColor(eyeColor);
+        hairPaint.setColor(hairColor);
+        whitePaint.setColor(Color.WHITE);
+        redPaint.setColor(Color.RED);
+        drawHair(canvas, width, height);
+        canvas.drawOval(100.0f, 100.0f, width-100.0f, width-100.0f, headPaint);
+        drawEyes(canvas, width);
+        drawMouth(canvas, width);
     }
 
-    public void DrawHair(Canvas canvas){
-
-    }
-
-    public void DrawEyes(Canvas canvas){
-
-    }
-
-    public void DrawMouth(Canvas canvas){
-
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        hairStyle = i;
-        this.invalidate();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-        //do nothing
-    }
-
-    @Override
-    public void onCheckedChanged(RadioGroup radioGroup, int i) {
-        if(i==R.id.hairRadioButton){
-            activeButton=0;
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void drawHair(Canvas canvas, float width, float height){
+        if (hairStyle==2){
+            //bald, do nothing
         }
-        else if(i==R.id.eyesRadioButton){
-            activeButton=1;
+        else if (hairStyle==1){
+            canvas.drawOval(80.0f, 100.0f, width-80.0f, height-80.0f, hairPaint);
         }
-        else{
-            activeButton=2;
-        }
-        this.invalidate();
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-        if(seekBar==findViewById(R.id.redSeekBar)){
-            if(activeButton==0){
-                hairColor=Color.rgb(i,Color.green(hairColor),Color.blue(hairColor));
-            }
-            else if(activeButton==1){
-                eyeColor=Color.rgb(i,Color.green(eyeColor),Color.blue(eyeColor));
-            }
-            else{
-                skinColor=Color.rgb(i,Color.green(skinColor),Color.blue(skinColor));
-            }
-        }
-        else if(seekBar==findViewById(R.id.greenSeekBar)){
-            if(activeButton==0){
-                hairColor=Color.rgb(Color.red(hairColor),i,Color.blue(hairColor));
-            }
-            else if(activeButton==1){
-                eyeColor=Color.rgb(Color.red(eyeColor),i,Color.blue(eyeColor));
-            }
-            else{
-                skinColor=Color.rgb(Color.red(skinColor),i,Color.blue(skinColor));
-            }
-        }
-        else{
-            if(activeButton==0){
-                hairColor=Color.rgb(Color.red(hairColor),Color.green(hairColor),i);
-            }
-            else if(activeButton==1){
-                eyeColor=Color.rgb(Color.red(eyeColor),Color.green(eyeColor),i);
-            }
-            else{
-                skinColor=Color.rgb(Color.red(skinColor),Color.green(skinColor),i);
-            }
+        else {
+            canvas.drawOval(80.0f, 100.0f, width-80.0f, height+50.0f, hairPaint);
         }
     }
 
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        //do nothing
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void drawEyes(Canvas canvas, float width){
+        canvas.drawOval(300.0f, 300.0f, 600.0f, 600.0f, whitePaint);
+        canvas.drawOval(width-600.0f, 300.0f, width-300.0f, 600.0f, whitePaint);
+        canvas.drawOval(350.0f, 350.0f, 550.0f, 550.0f, eyePaint);
+        canvas.drawOval(width-550.0f,350.0f, width-350.0f, 550.0f, eyePaint);
     }
 
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        //do nothing
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void drawMouth(Canvas canvas, float width){
+        canvas.drawArc(150.0f, 300.0f, width-150.0f, width-150.0f, 180, -180,false,redPaint);
     }
+
+    public int getActiveButton() {
+        return activeButton;
+    }
+
+    public int getEyeColor() {
+        return eyeColor;
+    }
+
+    public int getHairColor() {
+        return hairColor;
+    }
+
+    public int getHairStyle() {
+        return hairStyle;
+    }
+
+    public int getSkinColor() {
+        return skinColor;
+    }
+
+    public void setActiveButton(int activeButton) {
+        this.activeButton = activeButton;
+    }
+
+    public void setEyeColor(int eyeColor) {
+        this.eyeColor = eyeColor;
+    }
+
+    public void setHairColor(int hairColor) {
+        this.hairColor = hairColor;
+    }
+
+    public void setHairStyle(int hairStyle) {
+        this.hairStyle = hairStyle;
+    }
+
+    public void setSkinColor(int skinColor) {
+        this.skinColor = skinColor;
+    }
+
 }
